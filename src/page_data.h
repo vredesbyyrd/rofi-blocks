@@ -33,6 +33,7 @@ typedef struct
     gboolean markup;
     gboolean nonselectable;
     uint32_t icon_fetch_uid; //cache icon uid
+    uint32_t icon_fetch_size; //cache icon size
 } LineData;
 
 PageData * page_data_new(void);

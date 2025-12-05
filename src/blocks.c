@@ -446,25 +446,27 @@ static void blocks_mode_destroy ( Mode *sw )
     }
 }
 
- static cairo_surface_t * blocks_mode_get_icon ( const Mode *sw, unsigned int selected_line, unsigned int height ){
-    PageData * pageData = mode_get_private_data_current_page( sw );
-    LineData * lineData = page_data_get_line_by_index_or_else(pageData, selected_line, NULL);
-    if(lineData == NULL){
-        return NULL;
-    }
+static cairo_surface_t * blocks_mode_get_icon ( const Mode *sw, unsigned int selected_line, unsigned int height ){
+  PageData * pageData = mode_get_private_data_current_page( sw );
+  LineData * lineData = page_data_get_line_by_index_or_else(pageData, selected_line, NULL);
+  if(lineData == NULL){
+      return NULL;
+  }
 
-    const gchar * icon = lineData->icon;
-    if(icon == NULL || icon[0] == '\0'){
-        return NULL;
-    }
+  const gchar * icon = lineData->icon;
+  if(icon == NULL || icon[0] == '\0'){
+      return NULL;
+  }
 
-    if(lineData->icon_fetch_uid <= 0){
-        lineData->icon_fetch_uid = rofi_icon_fetcher_query ( icon, height );
-    } 
-    return rofi_icon_fetcher_get ( lineData->icon_fetch_uid );
- }
+  // Re-query if height changed or not yet queried
+  // The icon fetcher handles scale internally, so we don't need to track it
+  if(lineData->icon_fetch_uid == 0 || lineData->icon_fetch_size != height) {
+      lineData->icon_fetch_uid = rofi_icon_fetcher_query(icon, height);
+      lineData->icon_fetch_size = height;
+  }
 
-
+  return rofi_icon_fetcher_get(lineData->icon_fetch_uid);
+}
 
 static char * blocks_mode_get_display_value ( const Mode *sw, unsigned int selected_line, int *state, G_GNUC_UNUSED GList **attr_list, int get_entry )
 {
